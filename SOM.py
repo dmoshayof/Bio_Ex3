@@ -42,6 +42,7 @@ def main():
             for j in range(0,10):
                 matrix[i][j] =num[i][j]
         im = plt.imshow(matrix)
+        plt.pause(0.01)
     board = Board()
     board.rand_bin_matrix(36,100)
     board.train(all_num[0].replace('\n',''))
