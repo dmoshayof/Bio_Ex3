@@ -1,34 +1,40 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.datasets import load_digits
 
 MATRIX_SIZE = 10
 path = 'Digits_Ex3.txt'
 NN_SIZE = 6
+class Neuron():
+
+    def __init__(self,K,N):
+        self.vector  = np.zeros(N)
+        self.vector[:K] = 1
+        np.random.shuffle(self.vector)
+        self.color = None
+
+    def update(self,vector):
+        return
+
 class Board():
 
-    def rand_bin_matrix(self,K, N):
-        self.net_work = np.zeros([6,6,N])
-        for i, row in enumerate(self.net_work):
-            for j,cell in enumerate(row):
-                arr = np.zeros(N)
-                arr[:K] = 1
-                np.random.shuffle(arr)
-                self.net_work[i][j] = arr
+    def __init__(self,K,N):
+        self.net_work = [[Neuron(K,N)]*NN_SIZE]*NN_SIZE
 
-    def calc_dist(self,new_vec,old_vec):
+    def calc_dist(self,new_vec,neuron):
         sum = 0
-        for i in range(0,np.size(old_vec)):
-            sum += pow(int(new_vec[i])-old_vec[i],2)
+        for i in range(0,np.size(neuron.vector)):
+            sum += pow(int(new_vec[i])-neuron.vector[i],2)
         total = np.sqrt(sum)
         return total
 
     def train(self,data):
-        dist = 0
+        dist = {}
         for sample in data:
             sample = sample.replace('\n','')
             for row in self.net_work:
-                for i,cell in enumerate(row):
-                    self.calc_dist(sample,cell)
+                for i,neuron in enumerate(row):
+                    dist[neuron]=(self.calc_dist(sample,neuron))
 
 
 def main():
@@ -42,11 +48,12 @@ def main():
             for j in range(0,10):
                 matrix[i][j] =num[i][j]
         im = plt.imshow(matrix)
-        plt.pause(0.01)
-    board = Board()
-    board.rand_bin_matrix(36,100)
+        #plt.pause(0.01)
+    board = Board(36,100)
     board.train(all_num[0].replace('\n',''))
 
 
 if __name__ == '__main__':
+    digits = load_digits()
+    data = digits.data
     main()
