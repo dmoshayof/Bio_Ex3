@@ -13,15 +13,25 @@ SIGMA = 0.4
 
 class SOM():
 
-    def __init__(self, N):
+    def __init__(self):
+        '''
+        Initialize the net work in network size with random weights 0-1
+        shuffle the randomize weights
+        '''
         self.net_work = [[0] * NN_SIZE for i in range(NN_SIZE)]
         for i in range(NN_SIZE):
             random.seed(random.randint(0, 100))
             for j in range(NN_SIZE):
-                self.net_work[i][j] = np.random.uniform(0,1, [MATRIX_SIZE, MATRIX_SIZE])
+                self.net_work[i][j] = np.random.uniform(0, 1, [MATRIX_SIZE, MATRIX_SIZE])
                 np.random.shuffle(self.net_work[i][j])
 
     def calc_dist(self, i_matrix, cell):
+        """
+        Calc the euclidean distance between two matrix
+        :param i_matrix: current sample
+        :param cell: the network cell (neuron)
+        :return: the euclidean distance
+        """
         sum = 0
         for i in range(MATRIX_SIZE):
             for j in range(MATRIX_SIZE):
@@ -30,6 +40,14 @@ class SOM():
         return total
 
     def update(self, i, j, i_matrix, alpha, sigma):
+        """
+        Update the network weights with the current sample and most fit neuron
+        :param i: row of neuron
+        :param j: column of neuron
+        :param i_matrix: current sample
+        :param alpha: current alpha
+        :param sigma: current sigma
+        """
         for x in range(NN_SIZE):
             for y in range(NN_SIZE):
                 new_row = []
@@ -40,21 +58,6 @@ class SOM():
                     new_row.append(row + (h * (i_matrix[k] - row)))
                     k += 1
                 self.net_work[x][y] = new_row
-        return
-
-
-
-    def topological_error(self):
-        '''
-        In a well structured network the
-        most similar neuron and the second
-         best should be adjacent.
-         The  percent of “bad” mappings is an
-         indication to the structural
-          integrity of the network.
-        :return:
-        '''
-        return
 
     @staticmethod
     def convert_to_matrix(sample):
@@ -76,6 +79,11 @@ class SOM():
         plt.close()
 
     def find_nearest_neuron(self, i_matrix):
+        """
+        Calculate all distances from i_matrix to networks neurons and return the nearest
+        :param i_matrix: current sample
+        :return: nearest neuron index
+        """
         dist = {}
         for i in range(NN_SIZE):
             for j in range(NN_SIZE):
@@ -89,15 +97,16 @@ class SOM():
         t_alpha = ALPHA
         t_sigma = SIGMA
         for e in range(EPOCHS):
-            np.random.shuffle(data)
+            np.random.shuffle(data)  #For data shuffling state
             avg_quantization_error = 0
             for sample in data:
+                #sample = random.choice(data) #for random data state
                 i_matrix = self.convert_to_matrix(sample)
                 n_row, n_col = self.find_nearest_neuron(i_matrix)
                 self.update(n_row, n_col, i_matrix, t_alpha, t_sigma)
-                avg_quantization_error += self.calc_dist(i_matrix,self.net_work[n_row][n_col])
+                avg_quantization_error += self.calc_dist(i_matrix, self.net_work[n_row][n_col])
             avg_quantization_error /= len(data)
-            print("Epoch: {} , quantization error: {}, topologicak error: {}".format(e,avg_quantization_error,avg_quantization_error))
+            print("Epoch: {} , quantization error: {}".format(e, avg_quantization_error))
             t_alpha = ALPHA * (t_alpha / ALPHA) ** (e / EPOCHS)
             t_sigma = SIGMA * (t_sigma / SIGMA) ** (e / EPOCHS)
         self.show_image()
@@ -107,7 +116,7 @@ def main():
     with open(path) as data:
         all_num = data.read().split('\n\n')
 
-    som = SOM(N=100)
+    som = SOM()
     som.train(all_num)
 
 
